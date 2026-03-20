@@ -6,10 +6,11 @@ import { AuthModule } from './features/auth/auth.module';
 import { UserModule } from './features/user/user.module';
 import { PageModule } from './features/page/page.module';
 import { LinkModule } from './features/link/link.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../.env'] }),
+    ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     StorageModule,
     AuthModule,
@@ -17,5 +18,6 @@ import { LinkModule } from './features/link/link.module';
     PageModule,
     LinkModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}

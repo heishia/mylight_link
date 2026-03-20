@@ -2,28 +2,24 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY database/ ./database/
-COPY backend/package.json backend/package-lock.json ./backend/
-
-WORKDIR /app/backend
+COPY package.json package-lock.json ./
 RUN npm ci
 
-RUN npx prisma generate --schema=../database/schema.prisma
+COPY prisma/ ./prisma/
+RUN npx prisma generate
 
-COPY backend/ ./
+COPY . .
 RUN npm run build
 
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/database/ ./database/
-COPY --from=builder /app/backend/node_modules/ ./backend/node_modules/
-COPY --from=builder /app/backend/dist/ ./backend/dist/
-COPY --from=builder /app/backend/package.json ./backend/
-
-WORKDIR /app/backend
+COPY --from=builder /app/node_modules/ ./node_modules/
+COPY --from=builder /app/dist/ ./dist/
+COPY --from=builder /app/prisma/ ./prisma/
+COPY --from=builder /app/package.json ./
 
 ENV NODE_ENV=production
 
-CMD ["sh", "-c", "npx prisma migrate deploy --schema=../database/schema.prisma && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
