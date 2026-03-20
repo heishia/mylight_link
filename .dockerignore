@@ -1,0 +1,16 @@
+.git
+**/node_modules
+.env
+.env.*
+.env.local
+*.log
+**/dist
+**/.next
+**/out
+**/coverage
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+docker-compose.yml
+docker-compose.override.yml
