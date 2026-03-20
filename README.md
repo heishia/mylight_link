@@ -22,8 +22,8 @@ docker compose up -d
 # 2. Backend
 cd backend
 npm install
-npx prisma generate
-npx prisma migrate dev --name init
+npx prisma generate --schema=../database/schema.prisma
+npx prisma migrate dev --schema=../database/schema.prisma --name init
 npm run dev
 
 # 3. Frontend (새 터미널)
@@ -50,8 +50,10 @@ project/
 │       ├── components/               # 공통 컴포넌트
 │       ├── hooks/                    # 커스텀 훅
 │       └── lib/                      # 유틸, API 클라이언트
+├── database/                  # DB 스키마 & 마이그레이션
+│   ├── schema.prisma                 # Prisma 스키마 정의
+│   └── migrations/                   # 마이그레이션 SQL
 ├── backend/                   # NestJS (feature-based)
-│   ├── prisma/schema.prisma          # DB 스키마
 │   └── src/
 │       ├── features/
 │       │   ├── auth/                 # 인증 (JWT)
@@ -89,11 +91,11 @@ project/
 PORT=4000
 NODE_ENV=development
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=5434
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=mylight_link
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mylight_link
+DATABASE_URL=postgresql://postgres:postgres@localhost:5434/mylight_link
 JWT_SECRET=change-me-in-production
 JWT_EXPIRES_IN=7d
 NEXT_PUBLIC_API_URL=http://localhost:4000/api

@@ -6,8 +6,6 @@ Feature-based architecture로 구성된 NestJS 백엔드입니다.
 
 ```
 backend/
-├── prisma/
-│   └── schema.prisma         # DB 모델 정의
 ├── src/
 │   ├── main.ts               # 서버 엔트리포인트
 │   ├── app.module.ts         # 루트 모듈
@@ -33,8 +31,8 @@ backend/
 
 ```bash
 npm install
-npx prisma generate
-npx prisma migrate dev --name init
+npm run prisma:generate
+npm run prisma:migrate
 npm run dev
 ```
 

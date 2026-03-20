@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../backend/node_modules/.prisma/client"
 }
 
 datasource db {
@@ -26,6 +27,15 @@ model Page {
   title     String?
   bio       String?
   avatarUrl String? @map("avatar_url")
+
+  snsInstagram String? @map("sns_instagram")
+  snsYoutube   String? @map("sns_youtube")
+  snsTwitter   String? @map("sns_twitter")
+  snsFacebook  String? @map("sns_facebook")
+  snsTiktok    String? @map("sns_tiktok")
+  snsGithub    String? @map("sns_github")
+  snsThreads   String? @map("sns_threads")
+  snsLinkedin  String? @map("sns_linkedin")
 
   userId String @unique @map("user_id")
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
