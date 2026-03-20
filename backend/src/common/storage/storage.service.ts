@@ -10,33 +10,44 @@ import { extname } from 'path';
 
 @Injectable()
 export class StorageService {
-  private readonly s3: S3Client;
-  private readonly bucket: string;
-  private readonly publicUrl: string;
+  private s3: S3Client | null = null;
+  private bucket = '';
+  private publicUrl = '';
   private readonly logger = new Logger(StorageService.name);
 
   constructor(private readonly config: ConfigService) {
-    this.bucket = this.config.getOrThrow<string>('S3_BUCKET');
-    this.publicUrl = this.config.getOrThrow<string>('S3_PUBLIC_URL');
+    const bucket = this.config.get<string>('S3_BUCKET');
+    const endpoint = this.config.get<string>('S3_ENDPOINT');
+    const accessKey = this.config.get<string>('S3_ACCESS_KEY');
+    const secretKey = this.config.get<string>('S3_SECRET_KEY');
+    const publicUrl = this.config.get<string>('S3_PUBLIC_URL');
 
-    this.s3 = new S3Client({
-      region: this.config.get('S3_REGION', 'auto'),
-      endpoint: this.config.getOrThrow<string>('S3_ENDPOINT'),
-      credentials: {
-        accessKeyId: this.config.getOrThrow<string>('S3_ACCESS_KEY'),
-        secretAccessKey: this.config.getOrThrow<string>('S3_SECRET_KEY'),
-      },
-      forcePathStyle: this.config.get('S3_FORCE_PATH_STYLE', 'false') === 'true',
-    });
+    if (bucket && endpoint && accessKey && secretKey && publicUrl) {
+      this.bucket = bucket;
+      this.publicUrl = publicUrl;
+      this.s3 = new S3Client({
+        region: this.config.get('S3_REGION', 'auto'),
+        endpoint,
+        credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
+        forcePathStyle: this.config.get('S3_FORCE_PATH_STYLE', 'false') === 'true',
+      });
+      this.logger.log('S3 storage configured');
+    } else {
+      this.logger.warn('S3 storage not configured — file upload disabled');
+    }
   }
 
-  async upload(
-    file: Express.Multer.File,
-    folder: string,
-  ): Promise<string> {
+  private ensureConfigured(): void {
+    if (!this.s3) {
+      throw new Error('S3 storage is not configured. Set S3_BUCKET, S3_ENDPOINT, S3_ACCESS_KEY, S3_SECRET_KEY, S3_PUBLIC_URL.');
+    }
+  }
+
+  async upload(file: Express.Multer.File, folder: string): Promise<string> {
+    this.ensureConfigured();
     const key = `${folder}/${uuidv4()}${extname(file.originalname)}`;
 
-    await this.s3.send(
+    await this.s3!.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
@@ -51,6 +62,7 @@ export class StorageService {
   }
 
   async delete(fileUrl: string): Promise<void> {
+    if (!this.s3) return;
     try {
       const key = this.extractKey(fileUrl);
       if (!key) return;

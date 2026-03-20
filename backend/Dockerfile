@@ -22,4 +22,4 @@ COPY --from=builder /app/package.json ./
 
 ENV NODE_ENV=production
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "if [ -z \"$DATABASE_URL\" ]; then echo 'ERROR: DATABASE_URL is not set' && exit 1; fi && npx prisma migrate deploy && node dist/main"]
