@@ -7,10 +7,6 @@ import { z } from 'zod';
 import { Copy, Check, Camera, Trash2, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') ||
-  'http://localhost:4000';
-
 const settingsSchema = z.object({
   title: z.string().max(50).optional(),
   bio: z.string().max(200).optional(),
@@ -141,11 +137,6 @@ export default function SettingsPage() {
     }
   };
 
-  const getAvatarSrc = (url: string) => {
-    if (url.startsWith('http')) return url;
-    return `${API_BASE}${url}`;
-  };
-
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-2 text-2xl font-bold">페이지 설정</h1>
@@ -172,7 +163,7 @@ export default function SettingsPage() {
           <div className="relative">
             {avatarUrl ? (
               <img
-                src={getAvatarSrc(avatarUrl)}
+                src={avatarUrl}
                 alt="프로필 사진"
                 className="h-24 w-24 rounded-full object-cover shadow-md"
               />

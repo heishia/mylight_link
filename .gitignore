@@ -29,9 +29,5 @@ npm-debug.log*
 # Coverage
 coverage/
 
-# Uploads (keep .gitkeep)
-backend/uploads/*
-!backend/uploads/.gitkeep
-
 # Docker
 docker-compose.override.yml

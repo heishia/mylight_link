@@ -14,15 +14,6 @@ interface PageData {
   }[];
 }
 
-const API_BASE =
-  (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api').replace('/api', '');
-
-function resolveAvatarUrl(url: string | null): string | null {
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-  return `${API_BASE}${url}`;
-}
-
 async function getPage(slug: string): Promise<PageData | null> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
@@ -67,7 +58,7 @@ export default async function PublicPage({
         <div className="mb-8 flex flex-col items-center">
           {page.avatarUrl ? (
             <img
-              src={resolveAvatarUrl(page.avatarUrl)!}
+              src={page.avatarUrl}
               alt={page.title || page.userName}
               className="mb-4 h-24 w-24 rounded-full object-cover shadow-lg"
             />

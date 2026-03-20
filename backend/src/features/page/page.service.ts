@@ -3,14 +3,16 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { join } from 'path';
-import { existsSync, unlinkSync } from 'fs';
 import { PrismaService } from '../../prisma/prisma.service';
+import { StorageService } from '../../common/storage/storage.service';
 import { UpdatePageDto } from './dto/update-page.dto';
 
 @Injectable()
 export class PageService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   async getMyPage(userId: string) {
     const page = await this.prisma.page.findUnique({
@@ -43,22 +45,37 @@ export class PageService {
     });
   }
 
-  async updateAvatar(userId: string, avatarUrl: string | null) {
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
     const page = await this.prisma.page.findUnique({ where: { userId } });
     if (!page) {
       throw new NotFoundException('페이지를 찾을 수 없습니다');
     }
 
     if (page.avatarUrl) {
-      const oldPath = join(process.cwd(), page.avatarUrl);
-      if (existsSync(oldPath)) {
-        unlinkSync(oldPath);
-      }
+      await this.storage.delete(page.avatarUrl);
     }
+
+    const avatarUrl = await this.storage.upload(file, 'avatars');
 
     return this.prisma.page.update({
       where: { userId },
       data: { avatarUrl },
+    });
+  }
+
+  async removeAvatar(userId: string) {
+    const page = await this.prisma.page.findUnique({ where: { userId } });
+    if (!page) {
+      throw new NotFoundException('페이지를 찾을 수 없습니다');
+    }
+
+    if (page.avatarUrl) {
+      await this.storage.delete(page.avatarUrl);
+    }
+
+    return this.prisma.page.update({
+      where: { userId },
+      data: { avatarUrl: null },
     });
   }
 
