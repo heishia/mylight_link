@@ -3,6 +3,8 @@ import {
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
+import { join } from 'path';
+import { existsSync, unlinkSync } from 'fs';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdatePageDto } from './dto/update-page.dto';
 
@@ -38,6 +40,25 @@ export class PageService {
     return this.prisma.page.update({
       where: { userId },
       data: dto,
+    });
+  }
+
+  async updateAvatar(userId: string, avatarUrl: string | null) {
+    const page = await this.prisma.page.findUnique({ where: { userId } });
+    if (!page) {
+      throw new NotFoundException('페이지를 찾을 수 없습니다');
+    }
+
+    if (page.avatarUrl) {
+      const oldPath = join(process.cwd(), page.avatarUrl);
+      if (existsSync(oldPath)) {
+        unlinkSync(oldPath);
+      }
+    }
+
+    return this.prisma.page.update({
+      where: { userId },
+      data: { avatarUrl },
     });
   }
 
