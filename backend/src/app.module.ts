@@ -9,7 +9,7 @@ import { LinkModule } from './features/link/link.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '../.env' }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: ['.env', '../.env'] }),
     PrismaModule,
     StorageModule,
     AuthModule,
